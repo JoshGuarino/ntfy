@@ -37,7 +37,7 @@ func mustPush(list any, v any) ([]any, error) {
 		l2 := reflect.ValueOf(list)
 		l := l2.Len()
 		nl := make([]any, l)
-		for i := 0; i < l; i++ {
+		for i := range l {
 			nl[i] = l2.Index(i).Interface()
 		}
 		return append(nl, v), nil
@@ -66,7 +66,7 @@ func mustPrepend(list any, v any) ([]any, error) {
 		l2 := reflect.ValueOf(list)
 		l := l2.Len()
 		nl := make([]any, l)
-		for i := 0; i < l; i++ {
+		for i := range l {
 			nl[i] = l2.Index(i).Interface()
 		}
 		return append([]any{v}, nl...), nil
@@ -100,7 +100,7 @@ func mustChunk(size int, list any) ([][]any, error) {
 			return nil, fmt.Errorf("number of chunks %d exceeds maximum limit of %d", numChunks, sliceSizeLimit)
 		}
 		result := make([][]any, numChunks)
-		for i := 0; i < numChunks; i++ {
+		for i := range numChunks {
 			clen := size
 			// Handle the last chunk which might be smaller
 			if i == numChunks-1 {
@@ -110,7 +110,7 @@ func mustChunk(size int, list any) ([][]any, error) {
 				}
 			}
 			result[i] = make([]any, clen)
-			for j := 0; j < clen; j++ {
+			for j := range clen {
 				ix := i*size + j
 				result[i][j] = l2.Index(ix).Interface()
 			}
@@ -241,7 +241,7 @@ func mustInitial(list any) ([]any, error) {
 			return nil, nil
 		}
 		nl := make([]any, l-1)
-		for i := 0; i < l-1; i++ {
+		for i := range l - 1 {
 			nl[i] = l2.Index(i).Interface()
 		}
 		return nl, nil
@@ -286,7 +286,7 @@ func mustReverse(v any) ([]any, error) {
 		l := l2.Len()
 		// We do not sort in place because the incoming array should not be altered.
 		nl := make([]any, l)
-		for i := 0; i < l; i++ {
+		for i := range l {
 			nl[l-i-1] = l2.Index(i).Interface()
 		}
 		return nl, nil
@@ -316,7 +316,7 @@ func mustCompact(list any) ([]any, error) {
 		l := l2.Len()
 		var nl []any
 		var item any
-		for i := 0; i < l; i++ {
+		for i := range l {
 			item = l2.Index(i).Interface()
 			if !empty(item) {
 				nl = append(nl, item)
@@ -349,7 +349,7 @@ func mustUniq(list any) ([]any, error) {
 		l := l2.Len()
 		var dest []any
 		var item any
-		for i := 0; i < l; i++ {
+		for i := range l {
 			item = l2.Index(i).Interface()
 			if !inList(dest, item) {
 				dest = append(dest, item)
@@ -393,7 +393,7 @@ func mustWithout(list any, omit ...any) ([]any, error) {
 		l := l2.Len()
 		res := []any{}
 		var item any
-		for i := 0; i < l; i++ {
+		for i := range l {
 			item = l2.Index(i).Interface()
 			if !inList(omit, item) {
 				res = append(res, item)
@@ -428,7 +428,7 @@ func mustHas(needle any, haystack any) (bool, error) {
 		l2 := reflect.ValueOf(haystack)
 		var item any
 		l := l2.Len()
-		for i := 0; i < l; i++ {
+		for i := range l {
 			item = l2.Index(i).Interface()
 			if reflect.DeepEqual(needle, item) {
 				return true, nil
@@ -494,7 +494,7 @@ func concat(lists ...any) any {
 		switch tp {
 		case reflect.Slice, reflect.Array:
 			l2 := reflect.ValueOf(list)
-			for i := 0; i < l2.Len(); i++ {
+			for i := range l2.Len() {
 				res = append(res, l2.Index(i).Interface())
 			}
 		default:

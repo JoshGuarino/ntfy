@@ -102,7 +102,7 @@ func TestMemCache_MessagesLock(t *testing.T) {
 
 func testCacheMessagesLock(t *testing.T, c *messageCache) {
 	var wg sync.WaitGroup
-	for i := 0; i < 5000; i++ {
+	for range 5000 {
 		wg.Add(1)
 		go func() {
 			assert.Nil(t, c.AddMessage(newDefaultMessage("mytopic", "test message")))
@@ -464,7 +464,7 @@ func TestSqliteCache_Migration_From0(t *testing.T) {
 	require.Nil(t, err)
 
 	// Insert a bunch of messages
-	for i := 0; i < 10; i++ {
+	for i := range 10 {
 		_, err = db.Exec(`INSERT INTO messages (id, time, topic, message) VALUES (?, ?, ?, ?)`,
 			fmt.Sprintf("abcd%d", i), time.Now().Unix(), "mytopic", fmt.Sprintf("some message %d", i))
 		require.Nil(t, err)
@@ -510,7 +510,7 @@ func TestSqliteCache_Migration_From1(t *testing.T) {
 	require.Nil(t, err)
 
 	// Insert a bunch of messages
-	for i := 0; i < 10; i++ {
+	for i := range 10 {
 		_, err = db.Exec(`INSERT INTO messages (id, time, topic, message, title, priority, tags) VALUES (?, ?, ?, ?, ?, ?, ?)`,
 			fmt.Sprintf("abcd%d", i), time.Now().Unix(), "mytopic", fmt.Sprintf("some message %d", i), "", 0, "")
 		require.Nil(t, err)
@@ -594,7 +594,7 @@ func TestSqliteCache_Migration_From9(t *testing.T) {
 		INSERT INTO messages (mid, time, topic, message, title, priority, tags, click, icon, actions, attachment_name, attachment_type, attachment_size, attachment_expires, attachment_url, sender, encoding, published) 
 		VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
 	`
-	for i := 0; i < 10; i++ {
+	for i := range 10 {
 		_, err = db.Exec(
 			insertQuery,
 			fmt.Sprintf("abcd%d", i),

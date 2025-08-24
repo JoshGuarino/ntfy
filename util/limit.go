@@ -174,7 +174,7 @@ func NewLimitWriter(w io.Writer, limiters ...Limiter) *LimitWriter {
 func (w *LimitWriter) Write(p []byte) (n int, err error) {
 	w.mu.Lock()
 	defer w.mu.Unlock()
-	for i := 0; i < len(w.limiters); i++ {
+	for i := range len(w.limiters) {
 		if !w.limiters[i].AllowN(int64(len(p))) {
 			for j := i - 1; j >= 0; j-- {
 				w.limiters[j].AllowN(-int64(len(p))) // Revert limiters limits if not allowed

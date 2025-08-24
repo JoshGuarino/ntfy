@@ -331,7 +331,7 @@ func TestPayments_Checkout_Success_And_Increase_Rate_Limits_Reset_Visitor(t *tes
 		Return(&stripe.Customer{}, nil)
 
 	// Send messages until rate limit of free tier is hit
-	for i := 0; i < 5; i++ {
+	for range 5 {
 		rr := request(t, s, "PUT", "/mytopic", "some message", map[string]string{
 			"Authorization": util.BasicAuth("phil", "phil"),
 		})
@@ -374,7 +374,7 @@ func TestPayments_Checkout_Success_And_Increase_Rate_Limits_Reset_Visitor(t *tes
 
 	// Now for the fun part: Verify that new rate limits are immediately applied
 	// This only tests the request limiter, which kicks in before the message limiter.
-	for i := 0; i < 11; i++ {
+	for i := range 11 {
 		rr := request(t, s, "PUT", "/mytopic", "some message", map[string]string{
 			"Authorization": util.BasicAuth("phil", "phil"),
 		})
@@ -390,7 +390,7 @@ func TestPayments_Checkout_Success_And_Increase_Rate_Limits_Reset_Visitor(t *tes
 	v.requestLimiter = rate.NewLimiter(rate.Every(time.Millisecond), 1000000)
 
 	var wg sync.WaitGroup
-	for i := 0; i < 209; i++ {
+	for i := range 209 {
 		wg.Add(1)
 		go func(i int) {
 			defer wg.Done()

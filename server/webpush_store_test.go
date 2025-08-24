@@ -34,7 +34,7 @@ func TestWebPushStore_UpsertSubscription_SubscriberIPLimitReached(t *testing.T) 
 	defer webPush.Close()
 
 	// Insert 10 subscriptions with the same IP address
-	for i := 0; i < 10; i++ {
+	for i := range 10 {
 		endpoint := fmt.Sprintf(testWebPushEndpoint+"%d", i)
 		require.Nil(t, webPush.UpsertSubscription(endpoint, "auth-key", "p256dh-key", "u_1234", netip.MustParseAddr("1.2.3.4"), []string{"test-topic", "mytopic"}))
 	}

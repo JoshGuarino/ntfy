@@ -26,7 +26,7 @@ func TestFileCache_Write_Success(t *testing.T) {
 
 func TestFileCache_Write_Remove_Success(t *testing.T) {
 	dir, c := newTestFileCache(t) // max = 10k (10240), each = 1k (1024)
-	for i := 0; i < 10; i++ {     // 10x999 = 9990
+	for i := range 10 {           // 10x999 = 9990
 		size, err := c.Write(fmt.Sprintf("abcdefghijk%d", i), bytes.NewReader(make([]byte, 999)))
 		require.Nil(t, err)
 		require.Equal(t, int64(999), size)
@@ -45,7 +45,7 @@ func TestFileCache_Write_Remove_Success(t *testing.T) {
 
 func TestFileCache_Write_FailedTotalSizeLimit(t *testing.T) {
 	dir, c := newTestFileCache(t)
-	for i := 0; i < 10; i++ {
+	for i := range 10 {
 		size, err := c.Write(fmt.Sprintf("abcdefghijk%d", i), bytes.NewReader(oneKilobyteArray))
 		require.Nil(t, err)
 		require.Equal(t, int64(1024), size)

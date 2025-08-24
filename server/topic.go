@@ -48,7 +48,7 @@ func newTopic(id string) *topic {
 func (t *topic) Subscribe(s subscriber, userID string, cancel func()) (subscriberID int) {
 	t.mu.Lock()
 	defer t.mu.Unlock()
-	for i := 0; i < 5; i++ { // Best effort retry
+	for i := range 5 { // Best effort retry
 		subscriberID = rand.Int()
 		_, exists := t.subscribers[subscriberID]
 		if !exists {

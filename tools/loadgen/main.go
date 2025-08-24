@@ -14,11 +14,11 @@ func main() {
 	if len(os.Args) > 1 {
 		baseURL = os.Args[1]
 	}
-	for i := 0; i < 2000; i++ {
+	for i := range 2000 {
 		go subscribe(i, baseURL)
 	}
 	time.Sleep(5 * time.Second)
-	for i := 0; i < 2000; i++ {
+	for i := range 2000 {
 		go func(worker int) {
 			for {
 				poll(worker, baseURL)

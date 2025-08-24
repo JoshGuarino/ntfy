@@ -202,7 +202,7 @@ func dig(ps ...any) (any, error) {
 	dict := ps[len(ps)-1].(map[string]any)
 	def := ps[len(ps)-2]
 	ks := make([]string, len(ps)-2)
-	for i := 0; i < len(ks); i++ {
+	for i := range len(ks) {
 		ks[i] = ps[i].(string)
 	}
 

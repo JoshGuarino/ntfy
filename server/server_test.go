@@ -884,7 +884,7 @@ func TestServer_Auth_Fail_Rate_Limiting(t *testing.T) {
 	c.VisitorAuthFailureLimitBurst = 10
 	s := newTestServer(t, c)
 
-	for i := 0; i < 10; i++ {
+	for range 10 {
 		response := request(t, s, "PUT", "/announcements", "test", map[string]string{
 			"Authorization": util.BasicAuth("phil", "phil"),
 		})
@@ -960,7 +960,7 @@ func TestServer_StatsResetter(t *testing.T) {
 	require.Equal(t, 200, response.Code)
 
 	// Send messages from user without tier (phil)
-	for i := 0; i < 5; i++ {
+	for range 5 {
 		response := request(t, s, "PUT", "/mytopic", "test", map[string]string{
 			"Authorization": util.BasicAuth("phil", "phil"),
 		})
@@ -968,7 +968,7 @@ func TestServer_StatsResetter(t *testing.T) {
 	}
 
 	// Send messages from user with tier
-	for i := 0; i < 2; i++ {
+	for range 2 {
 		response := request(t, s, "PUT", "/mytopic", "test", map[string]string{
 			"Authorization": util.BasicAuth("tieruser", "tieruser"),
 		})
@@ -1046,7 +1046,7 @@ func TestServer_StatsResetter_MessageLimiter_EmailsLimiter(t *testing.T) {
 	s.smtpSender = &testMailer{}
 
 	// Publish some messages, and check stats
-	for i := 0; i < 3; i++ {
+	for range 3 {
 		response := request(t, s, "PUT", "/mytopic", "test", nil)
 		require.Equal(t, 200, response.Code)
 	}
@@ -1147,7 +1147,7 @@ func (t *testMailer) Count() int {
 
 func TestServer_PublishTooManyRequests_Defaults(t *testing.T) {
 	s := newTestServer(t, newTestConfig(t))
-	for i := 0; i < 60; i++ {
+	for i := range 60 {
 		response := request(t, s, "PUT", "/mytopic", fmt.Sprintf("message %d", i), nil)
 		require.Equal(t, 200, response.Code)
 	}
@@ -1163,11 +1163,11 @@ func TestServer_PublishTooManyRequests_Defaults_IPv6(t *testing.T) {
 	overrideRemoteAddr2 := func(r *http.Request) {
 		r.RemoteAddr = "[2001:db8:9999:8888:2::1]:1234" // Same /64
 	}
-	for i := 0; i < 30; i++ {
+	for i := range 30 {
 		response := request(t, s, "PUT", "/mytopic", fmt.Sprintf("message %d", i), nil, overrideRemoteAddr1)
 		require.Equal(t, 200, response.Code)
 	}
-	for i := 0; i < 30; i++ {
+	for i := range 30 {
 		response := request(t, s, "PUT", "/mytopic", fmt.Sprintf("message %d", i), nil, overrideRemoteAddr2)
 		require.Equal(t, 200, response.Code)
 	}
@@ -1186,11 +1186,11 @@ func TestServer_PublishTooManyRequests_IPv6_Slash48(t *testing.T) {
 	overrideRemoteAddr2 := func(r *http.Request) {
 		r.RemoteAddr = "[2001:db8:9999::2]:1234" // Same /48
 	}
-	for i := 0; i < 3; i++ {
+	for i := range 3 {
 		response := request(t, s, "PUT", "/mytopic", fmt.Sprintf("message %d", i), nil, overrideRemoteAddr1)
 		require.Equal(t, 200, response.Code)
 	}
-	for i := 0; i < 3; i++ {
+	for i := range 3 {
 		response := request(t, s, "PUT", "/mytopic", fmt.Sprintf("message %d", i), nil, overrideRemoteAddr2)
 		require.Equal(t, 200, response.Code)
 	}
@@ -1203,7 +1203,7 @@ func TestServer_PublishTooManyRequests_Defaults_ExemptHosts(t *testing.T) {
 	c.VisitorRequestLimitBurst = 3
 	c.VisitorRequestExemptPrefixes = []netip.Prefix{netip.MustParsePrefix("9.9.9.9/32")} // see request()
 	s := newTestServer(t, c)
-	for i := 0; i < 5; i++ { // > 3
+	for i := range 5 { // > 3
 		response := request(t, s, "PUT", "/mytopic", fmt.Sprintf("message %d", i), nil)
 		require.Equal(t, 200, response.Code)
 	}
@@ -1217,7 +1217,7 @@ func TestServer_PublishTooManyRequests_Defaults_ExemptHosts_IPv6(t *testing.T) {
 	overrideRemoteAddr := func(r *http.Request) {
 		r.RemoteAddr = "[2001:db8:9999::1]:1234"
 	}
-	for i := 0; i < 5; i++ { // > 3
+	for i := range 5 { // > 3
 		response := request(t, s, "PUT", "/mytopic", fmt.Sprintf("message %d", i), nil, overrideRemoteAddr)
 		require.Equal(t, 200, response.Code)
 	}
@@ -1229,7 +1229,7 @@ func TestServer_PublishTooManyRequests_Defaults_ExemptHosts_MessageDailyLimit(t 
 	c.VisitorMessageDailyLimit = 4
 	c.VisitorRequestExemptPrefixes = []netip.Prefix{netip.MustParsePrefix("9.9.9.9/32")} // see request()
 	s := newTestServer(t, c)
-	for i := 0; i < 8; i++ { // 4
+	for range 8 { // 4
 		response := request(t, s, "PUT", "/mytopic", "message", nil)
 		require.Equal(t, 200, response.Code)
 	}
@@ -1241,7 +1241,7 @@ func TestServer_PublishTooManyRequests_ShortReplenish(t *testing.T) {
 	c.VisitorRequestLimitBurst = 60
 	c.VisitorRequestLimitReplenish = time.Second
 	s := newTestServer(t, c)
-	for i := 0; i < 60; i++ {
+	for i := range 60 {
 		response := request(t, s, "PUT", "/mytopic", fmt.Sprintf("message %d", i), nil)
 		require.Equal(t, 200, response.Code)
 	}
@@ -1256,7 +1256,7 @@ func TestServer_PublishTooManyRequests_ShortReplenish(t *testing.T) {
 func TestServer_PublishTooManyEmails_Defaults(t *testing.T) {
 	s := newTestServer(t, newTestConfig(t))
 	s.smtpSender = &testMailer{}
-	for i := 0; i < 16; i++ {
+	for i := range 16 {
 		response := request(t, s, "PUT", "/mytopic", fmt.Sprintf("message %d", i), map[string]string{
 			"E-Mail": "test@example.com",
 		})
@@ -1274,7 +1274,7 @@ func TestServer_PublishTooManyEmails_Replenish(t *testing.T) {
 	c.VisitorEmailLimitReplenish = 500 * time.Millisecond
 	s := newTestServer(t, c)
 	s.smtpSender = &testMailer{}
-	for i := 0; i < 16; i++ {
+	for i := range 16 {
 		response := request(t, s, "PUT", "/mytopic", fmt.Sprintf("message %d", i), map[string]string{
 			"E-Mail": "test@example.com",
 		})
@@ -1673,7 +1673,7 @@ func TestServer_PublishAsJSON_RateLimit_MessageDailyLimit(t *testing.T) {
 	c.VisitorMessageDailyLimit = 3
 	s := newTestServer(t, c)
 
-	for i := 0; i < 3; i++ {
+	for range 3 {
 		response := request(t, s, "PUT", "/", `{"topic":"mytopic","message":"A message"}`, nil)
 		require.Equal(t, 200, response.Code)
 	}
@@ -1783,7 +1783,7 @@ func TestServer_PublishWithTierBasedMessageLimitAndExpiry(t *testing.T) {
 	require.Nil(t, s.userManager.ChangeTier("phil", "test"))
 
 	// Publish to reach message limit
-	for i := 0; i < 5; i++ {
+	for i := range 5 {
 		response := request(t, s, "PUT", "/mytopic", fmt.Sprintf("this is message %d", i+1), map[string]string{
 			"Authorization": util.BasicAuth("phil", "phil"),
 		})
@@ -2120,7 +2120,7 @@ func TestServer_PublishAttachmentWithTierBasedLimits(t *testing.T) {
 	require.Equal(t, 41301, toHTTPError(t, response.Body.String()).Code)
 
 	// Publish large file as phil (4x)
-	for i := 0; i < 4; i++ {
+	for range 4 {
 		response = request(t, s, "PUT", "/mytopic", largeFile, map[string]string{
 			"Authorization": util.BasicAuth("phil", "phil"),
 		})
@@ -2330,7 +2330,7 @@ func TestServer_PublishWhileUpdatingStatsWithLotsOfMessages(t *testing.T) {
 	log.Info("Adding %d messages", count)
 	start := time.Now()
 	messages := make([]*message, 0)
-	for i := 0; i < count; i++ {
+	for i := range count {
 		topicID := fmt.Sprintf("topic%d", i)
 		_, err := s.topicsFromIDs(topicID) // Add topic to internal s.topics array
 		require.Nil(t, err)
@@ -2425,7 +2425,7 @@ func TestServer_SubscriberRateLimiting_Success(t *testing.T) {
 
 	// Publish 2 messages to "subscriber1topic" as visitor 9.9.9.9. It'd be 3 normally, but the
 	// GET request before is also counted towards the request limiter.
-	for i := 0; i < 2; i++ {
+	for range 2 {
 		rr := request(t, s, "PUT", "/upAAAAAAAAAAAA", "some message", nil)
 		require.Equal(t, 200, rr.Code)
 	}
@@ -2433,7 +2433,7 @@ func TestServer_SubscriberRateLimiting_Success(t *testing.T) {
 	require.Equal(t, 429, rr.Code)
 
 	// Publish another 2 messages to "up012345678912" as visitor 9.9.9.9
-	for i := 0; i < 2; i++ {
+	for range 2 {
 		rr := request(t, s, "PUT", "/up012345678912", "some message", nil)
 		require.Equal(t, 200, rr.Code) // If we fail here, handlePublish is using the wrong visitor!
 	}
@@ -2445,7 +2445,7 @@ func TestServer_SubscriberRateLimiting_Success(t *testing.T) {
 
 	// Now let's confirm that so far we haven't used up any of visitor 9.9.9.9's request limiter
 	// by publishing another 3 requests from it.
-	for i := 0; i < 3; i++ {
+	for range 3 {
 		rr := request(t, s, "PUT", "/some-other-topic", "some message", nil)
 		require.Equal(t, 200, rr.Code)
 	}
@@ -2494,7 +2494,7 @@ func TestServer_SubscriberRateLimiting_NotEnabled_Failed(t *testing.T) {
 	require.Nil(t, s.topics["up012345678912"].rateVisitor)
 
 	// Publish 3 messages to "upAAAAAAAAAAAA" as visitor 9.9.9.9
-	for i := 0; i < 3; i++ {
+	for range 3 {
 		rr := request(t, s, "PUT", "/subscriber1topic", "some message", nil)
 		require.Equal(t, 200, rr.Code)
 	}
@@ -2511,7 +2511,7 @@ func TestServer_SubscriberRateLimiting_UP_Only(t *testing.T) {
 	s := newTestServer(t, c)
 
 	// "Register" 5 different UnifiedPush visitors
-	for i := 0; i < 5; i++ {
+	for i := range 5 {
 		subscriberFn := func(r *http.Request) {
 			r.RemoteAddr = fmt.Sprintf("1.2.3.%d:1234", i+1)
 		}
@@ -2520,8 +2520,8 @@ func TestServer_SubscriberRateLimiting_UP_Only(t *testing.T) {
 	}
 
 	// Publish 2 messages per topic
-	for i := 0; i < 5; i++ {
-		for j := 0; j < 2; j++ {
+	for i := range 5 {
+		for range 2 {
 			rr := request(t, s, "PUT", fmt.Sprintf("/up12345678901%d?up=1", i), "some message", nil)
 			require.Equal(t, 200, rr.Code)
 		}
@@ -2535,7 +2535,7 @@ func TestServer_Matrix_SubscriberRateLimiting_UP_Only(t *testing.T) {
 	s := newTestServer(t, c)
 
 	// "Register" 5 different UnifiedPush visitors
-	for i := 0; i < 5; i++ {
+	for i := range 5 {
 		rr := request(t, s, "GET", fmt.Sprintf("/up12345678901%d/json?poll=1", i), "", nil, func(r *http.Request) {
 			r.RemoteAddr = fmt.Sprintf("1.2.3.%d:1234", i+1)
 		})
@@ -2543,9 +2543,9 @@ func TestServer_Matrix_SubscriberRateLimiting_UP_Only(t *testing.T) {
 	}
 
 	// Publish 2 messages per topic
-	for i := 0; i < 5; i++ {
+	for i := range 5 {
 		notification := fmt.Sprintf(`{"notification":{"devices":[{"pushkey":"http://127.0.0.1:12345/up12345678901%d?up=1"}]}}`, i)
-		for j := 0; j < 2; j++ {
+		for range 2 {
 			response := request(t, s, "POST", "/_matrix/push/v1/notify", notification, nil)
 			require.Equal(t, 200, response.Code)
 			require.Equal(t, `{"rejected":[]}`+"\n", response.Body.String())
@@ -2616,7 +2616,7 @@ func TestServer_MessageHistoryAndStatsEndpoint(t *testing.T) {
 	s := newTestServer(t, c)
 
 	// Publish some messages, and get stats
-	for i := 0; i < 5; i++ {
+	for range 5 {
 		response := request(t, s, "POST", "/mytopic", "some message", nil)
 		require.Equal(t, 200, response.Code)
 	}
@@ -2636,7 +2636,7 @@ func TestServer_MessageHistoryAndStatsEndpoint(t *testing.T) {
 	require.Equal(t, `{"messages":5,"messages_rate":2.5}`+"\n", response.Body.String()) // 5 messages in 2 seconds = 2.5 messages per second
 
 	// Publish some more messages
-	for i := 0; i < 10; i++ {
+	for range 10 {
 		response := request(t, s, "POST", "/mytopic", "some message", nil)
 		require.Equal(t, 200, response.Code)
 	}
@@ -2659,7 +2659,7 @@ func TestServer_MessageHistoryAndStatsEndpoint(t *testing.T) {
 func TestServer_MessageHistoryMaxSize(t *testing.T) {
 	t.Parallel()
 	s := newTestServer(t, newTestConfig(t))
-	for i := 0; i < 20; i++ {
+	for i := range 20 {
 		s.messages = int64(i)
 		s.execManager()
 	}

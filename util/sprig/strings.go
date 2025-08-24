@@ -202,7 +202,7 @@ func strslice(v any) []string {
 		case reflect.Array, reflect.Slice:
 			l := val.Len()
 			b := make([]string, 0, l)
-			for i := 0; i < l; i++ {
+			for i := range l {
 				value := val.Index(i).Interface()
 				if value != nil {
 					b = append(b, strval(value))

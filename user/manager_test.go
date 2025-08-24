@@ -680,7 +680,7 @@ func TestManager_Token_MaxCount_AutoDelete(t *testing.T) {
 	// Create 62 tokens for ben (only 60 allowed!)
 	baseTime := time.Now().Add(24 * time.Hour)
 	benTokens := make([]string, 0)
-	for i := 0; i < 62; i++ { //
+	for i := range 62 {
 		token, err := a.CreateToken(ben.ID, "", time.Now().Add(72*time.Hour), netip.IPv4Unspecified(), false)
 		require.Nil(t, err)
 		require.NotEmpty(t, token.Value)
@@ -707,7 +707,7 @@ func TestManager_Token_MaxCount_AutoDelete(t *testing.T) {
 	}
 
 	// Phil: All tokens should still work
-	for i := 0; i < 2; i++ {
+	for i := range 2 {
 		userWithToken, err := a.AuthenticateToken(philTokens[i])
 		require.Nil(t, err, "token[%d]=%s failed", i, philTokens[i])
 		require.Equal(t, "phil", userWithToken.Name)
@@ -1015,7 +1015,7 @@ func TestManager_Tier_Change_And_Reset(t *testing.T) {
 	require.Nil(t, a.ChangeTier("phil", "pro"))
 
 	// Add 10 reservations (pro tier allows that)
-	for i := 0; i < 4; i++ {
+	for i := range 4 {
 		require.Nil(t, a.AddReservation("phil", fmt.Sprintf("topic%d", i), PermissionWrite))
 	}
 

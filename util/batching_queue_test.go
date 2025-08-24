@@ -21,7 +21,7 @@ func TestBatchingQueue_InfTimeout(t *testing.T) {
 			mu.Unlock()
 		}
 	}()
-	for i := 0; i < 101; i++ {
+	for i := range 101 {
 		go q.Enqueue(i)
 	}
 	time.Sleep(time.Second)
@@ -43,7 +43,7 @@ func TestBatchingQueue_WithTimeout(t *testing.T) {
 			mu.Unlock()
 		}
 	}()
-	for i := 0; i < 101; i++ {
+	for i := range 101 {
 		go func(i int) {
 			time.Sleep(time.Duration(rand.Intn(700)) * time.Millisecond)
 			q.Enqueue(i)

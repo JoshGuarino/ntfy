@@ -71,7 +71,7 @@ func TestAccount_Signup_LimitReached(t *testing.T) {
 	s := newTestServer(t, conf)
 	defer s.closeDatabases()
 
-	for i := 0; i < 3; i++ {
+	for i := range 3 {
 		rr := request(t, s, "POST", "/v1/account", fmt.Sprintf(`{"username":"phil%d", "password":"mypass"}`, i), nil)
 		require.Equal(t, 200, rr.Code)
 	}
@@ -118,7 +118,7 @@ func TestAccount_Signup_Rate_Limit(t *testing.T) {
 	conf.EnableSignup = true
 	s := newTestServer(t, conf)
 
-	for i := 0; i < 3; i++ {
+	for i := range 3 {
 		rr := request(t, s, "POST", "/v1/account", fmt.Sprintf(`{"username":"phil%d", "password":"mypass"}`, i), nil)
 		require.Equal(t, 200, rr.Code, "failed on iteration %d", i)
 	}
